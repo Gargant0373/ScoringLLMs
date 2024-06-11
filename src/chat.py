@@ -1,8 +1,15 @@
 import dspy
+import sys
+import os
+import traceback
 from pydantic import BaseModel, Field
 from dspy import InputField, OutputField, TypedChainOfThought
 
 from schwartz import ValueInformation, RubricInformation, schwartz_values, rubric
+
+from config import setup_logging
+
+logger = setup_logging()
 
 lm = dspy.OllamaLocal(model='llama3')
 dspy.settings.configure(lm=lm)
@@ -30,12 +37,14 @@ class OutputScore(BaseModel):
 
 class GenerateScore(dspy.Signature):
     """
-    Using the Scwhartz Theory of basic Human Values, give a score, an 
-    integer from 1-5, according to the rubric, based on how important 
+    Using the Scwhartz Theory of basic Human Values, give a score, an
+    integer from 1-5, according to the rubric, based on how important
     the given value is according to the lyrics.
     Then, on the scale of 0-1 tell how confident you are about the
     answer.
     Lastly, provide a feedback stating why you chose the score.
+    After "Output:" nothing should follow except the required JSON object.
+    Your response should contain nothing besides the JSON object.
     """
 
     value: ValueInformation = InputField()
@@ -72,11 +81,33 @@ Feel my, my, my, my serpentine
 Oh, ah, I wanna hear you scream
 """)
 
-result = score_generator(
-    value=schwartz_values.get_value("tradition"),
-    lyrics=test_lyrics.lyrics,
-    score_rubric=rubric
-)
+# result = score_generator(
+#     value=schwartz_values.get_value("tradition"),
+#     lyrics=test_lyrics.lyrics,
+#     score_rubric=rubric
+# )
 
-print(f"Score: {result.output.score} (confidence: {result.output.confidence})")
-print(result.output.feedback)
+logger.info(f"Evaluation for lyrics: {test_lyrics.lyrics}")
+
+outs = []
+
+for val in schwartz_values.values:
+    logger.info(f"Assesing {val.value}...")
+    try:
+        result = score_generator(
+            value=val,
+            lyrics=test_lyrics.lyrics,
+            score_rubric=rubric
+        )
+
+        outs.append(result.output)
+        logger.info(f"Finished assesing {val.value}: {result.output.score} (confidence: {result.output.confidence})")
+        logger.debug(f"Feedback: {result.output.feedback}")
+    except Exception:
+        logger.error(traceback.format_exc())
+    finally:
+        with open(os.devnull, "w") as sys.stdout:
+            logger.debug(f"Prompt: {lm.inspect_history(n=1)}")
+
+# print(f"Score: {result.output.score} (confidence: {result.output.confidence})")
+# print(result.output.feedback)
