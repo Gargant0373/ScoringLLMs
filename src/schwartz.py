@@ -1,12 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 
 class RubricInformation(BaseModel):
-    rubric: str
+    rubric: str = Field(description="A rubric to be used for assigning scores to lyrics for each value")
 
 class ValueInformation(BaseModel):
-    value: str
-    value_description: str
+    value: str = Field(description="The specific value to be rated in the lyrics")
+    value_description: str = Field(description="The description of the value to be rated")
 
 rubric = RubricInformation(rubric="""
 Score 5: The value is of the highest importance to the speaker of the lyrics.
