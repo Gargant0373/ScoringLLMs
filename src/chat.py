@@ -2,18 +2,26 @@ import dspy
 import sys
 import os
 import traceback
+import csv
 from pydantic import BaseModel, Field
 from dspy import InputField, OutputField, TypedChainOfThought
+from dotenv import load_dotenv
 
 from schwartz import ValueInformation, RubricInformation, schwartz_values, rubric
 
-from config import setup_logging
+from config import setup_logging, load_lyrics
 
-logger = setup_logging()
+load_dotenv()
+logger = setup_logging(os.getenv('LOG_DIR'))
+
+lyrics = load_lyrics(os.getenv('LYRICS_PATH_IDS'), os.getenv('LYRICS_PATH_FULL'))
 
 lm = dspy.OllamaLocal(model='llama3')
 dspy.settings.configure(lm=lm)
 
+# Create output class for answers
+# The model will try to output a JSON object with the 
+# following constraints
 class OutputScore(BaseModel):
     score: int = Field(
         ge=1,
@@ -34,7 +42,9 @@ class OutputScore(BaseModel):
         """
     )
 
-
+# Main DSPY singature
+# Specifies what values are passed as inputs and what is 
+# expected as output
 class GenerateScore(dspy.Signature):
     """
     Using the Scwhartz Theory of basic Human Values, give a score, an
@@ -62,52 +72,33 @@ class LyricText(BaseModel):
     mxm_id: int
     lyrics: str
 
+for l in lyrics:
+    lyi = LyricText(**l)
 
-test_lyrics = LyricText(mxm_id=1234,
-                        lyrics="""
-Welcome to the jungle, we got fun and games
-We got everything you want, honey, we know the names
-We are the people that can find whatever you may need
-If you got the money, honey, we got your disease
-In the jungle, welcome to the jungle
-Watch it bring you to your shun-n-n-n-n-n-n-n-n-n-n-n, knees, knees
-Mwah, ah, I wanna watch you bleed
-Welcome to the jungle, we take it day by day
-If you want it you're going to bleed, but it's the price you pay
-And you're a very sexy girl, who's very hard to please
-You can taste the bright lights, but you won't get them for free
-In the jungle, welcome to the jungle
-Feel my, my, my, my serpentine
-Oh, ah, I wanna hear you scream
-""")
+    logger.info(f"Evaluation for lyrics: \n{lyi.lyrics}")
 
-# result = score_generator(
-#     value=schwartz_values.get_value("tradition"),
-#     lyrics=test_lyrics.lyrics,
-#     score_rubric=rubric
-# )
+    outs = []
+    scores = []
 
-logger.info(f"Evaluation for lyrics: {test_lyrics.lyrics}")
+    for val in schwartz_values.values:
+        logger.info(f"Assesing {val.value}...")
+        try:
+            result = score_generator(
+                value=val,
+                lyrics=lyi.lyrics,
+                score_rubric=rubric
+            )
 
-outs = []
+            outs.append(result.output)
+            scores.append(result.output.score)
+            logger.info(f"Finished assesing {val.value}: {result.output.score} (confidence: {result.output.confidence})")
+            logger.debug(f"Feedback: {result.output.feedback}")
+        except Exception:
+            logger.error(traceback.format_exc())
+        finally:
+            with open(os.devnull, "w") as sys.stdout:
+                logger.debug(f"Prompt: {lm.inspect_history(n=1)}")
 
-for val in schwartz_values.values:
-    logger.info(f"Assesing {val.value}...")
-    try:
-        result = score_generator(
-            value=val,
-            lyrics=test_lyrics.lyrics,
-            score_rubric=rubric
-        )
-
-        outs.append(result.output)
-        logger.info(f"Finished assesing {val.value}: {result.output.score} (confidence: {result.output.confidence})")
-        logger.debug(f"Feedback: {result.output.feedback}")
-    except Exception:
-        logger.error(traceback.format_exc())
-    finally:
-        with open(os.devnull, "w") as sys.stdout:
-            logger.debug(f"Prompt: {lm.inspect_history(n=1)}")
-
-# print(f"Score: {result.output.score} (confidence: {result.output.confidence})")
-# print(result.output.feedback)
+    with open(os.path.join(os.getenv('RESULTS_DIR'), "ratings.csv"), 'a', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow([lyi.mxm_id] + scores)
