@@ -49,7 +49,8 @@ class GenerateScore(dspy.Signature):
     """
     Using the Scwhartz Theory of basic Human Values, give a score, an
     integer from 1-5, according to the rubric, based on how important
-    the given value is according to the lyrics.
+    the given value is according to the lyrics. Multiple values of 5
+    is a sign that something is off.
     Then, on the scale of 0-1 tell how confident you are about the
     answer.
     Lastly, provide a feedback stating why you chose the score.
