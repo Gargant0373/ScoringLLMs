@@ -1,4 +1,7 @@
+
 # Scoring LLMs Paper Repository
+Project built with DSPy for ratings Song Lyrics.
+
 ## Setup
 Make sure a version of Conda is installed. Then
 ```
@@ -12,3 +15,17 @@ Run scripts from `src/` with
 ```
 python src/{name of script}
 ```
+
+**Make sure to have the following folders created:**
+- data
+- logs
+- plot
+- results
+
+**.env example configuration:**
+
+    RESULTS_DIR=/home/user/ScoringLLMs/results
+    LYRICS_PATH_IDS=/home/user/ScoringLLMs/data/ids.csv
+    LYRICS_PATH_FULL=/home/user/ScoringLLMs/data/full.csv
+    LOG_DIR=/home/adespan/user/logs
+    PLOT_PATH=/home/adespan/user/plot
