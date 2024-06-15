@@ -19,6 +19,39 @@ lyrics = load_lyrics(os.getenv('LYRICS_PATH_IDS'), os.getenv('LYRICS_PATH_FULL')
 lm = dspy.OllamaLocal(model='llama3')
 dspy.settings.configure(lm=lm)
 
+header = [
+    "mxm_id", "achievement", "hedonism", "power", "self-direction",
+    "stimulation", "security", "conformity", "tradition", "benevolence", "universalism"
+    ]   
+
+# Append data to a CSV file
+def append_to_csv(file_path, data):
+    with open(file_path, 'a', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(data)
+
+# Write the header if the file is empty
+def write_header_if_empty(file_path, header):
+    if not os.path.isfile(file_path) or os.path.getsize(file_path) == 0:
+        with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(header)
+
+
+results_dir = os.getenv('RESULTS_DIR')
+
+# Create the directory if it doesn't exist
+os.makedirs(results_dir, exist_ok=True)
+
+num_files = len([name for name in os.listdir(results_dir) if os.path.isfile(os.path.join(results_dir, name))])
+count = num_files // 2
+
+result_file_path = os.path.join(results_dir, f"ratings-{count}.csv")
+weighted_file_path = os.path.join(results_dir, f"weighted-{count}.csv")
+
+write_header_if_empty(result_file_path, header)
+write_header_if_empty(weighted_file_path, header)
+
 # Create output class for answers
 # The model will try to output a JSON object with the 
 # following constraints
@@ -80,6 +113,7 @@ for l in lyrics:
 
     outs = []
     scores = []
+    confidence_scores = []
 
     for val in schwartz_values.values:
         logger.info(f"Assesing {val.value}...")
@@ -92,6 +126,7 @@ for l in lyrics:
 
             outs.append(result.output)
             scores.append(result.output.score)
+            confidence_scores.append(result.output.score * result.output.confidence)
             logger.info(f"Finished assesing {val.value}: {result.output.score} (confidence: {result.output.confidence})")
             logger.debug(f"Feedback: {result.output.feedback}")
         except Exception:
@@ -100,6 +135,5 @@ for l in lyrics:
             with open(os.devnull, "w") as sys.stdout:
                 logger.debug(f"Prompt: {lm.inspect_history(n=1)}")
 
-    with open(os.path.join(os.getenv('RESULTS_DIR'), "ratings.csv"), 'a', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow([lyi.mxm_id] + scores)
+    append_to_csv(result_file_path, [lyi.mxm_id] + scores)
+    append_to_csv(weighted_file_path, [lyi.mxm_id] + confidence_scores)

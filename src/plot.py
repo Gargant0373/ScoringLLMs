@@ -11,6 +11,10 @@ load_dotenv()
 plot_path = os.getenv('PLOT_PATH')
 results_dir = os.getenv('RESULTS_DIR')
 
+# Create the directories if they don't exist
+os.makedirs(plot_path, exist_ok=True)
+os.makedirs(results_dir, exist_ok=True)
+
 # List all CSV files in the results directory
 csv_files = [f for f in os.listdir(results_dir) if f.endswith('.csv')]
 print("Available CSV files:")

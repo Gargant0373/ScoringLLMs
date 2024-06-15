@@ -2,15 +2,19 @@ import os
 import csv
 from dotenv import load_dotenv
 import logging
-
+from datetime import datetime
 
 def setup_logging(log_dir):
+    # Ensure the log directory exists
+    os.makedirs(log_dir, exist_ok=True)
+
     # Create a custom logger
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)  # Set the base level to DEBUG to capture all messages
 
     # Create handlers
-    file_handler = logging.FileHandler(os.path.join(log_dir, "llama3.log"))
+    log_filename = f"llama3-{datetime.now().strftime('%d-%m-%Y')}.log"
+    file_handler = logging.FileHandler(os.path.join(log_dir, log_filename))
     file_handler.setLevel(logging.DEBUG)  # Log all messages to the file
 
     console_handler = logging.StreamHandler()
@@ -25,7 +29,7 @@ def setup_logging(log_dir):
     # Add the handlers to the logger
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
-    
+
     return logger
 
 def load_lyrics(csv_path_mxm_id_list, csv_path_all_lyrics):
