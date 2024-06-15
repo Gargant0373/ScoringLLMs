@@ -16,12 +16,6 @@ Run scripts from `src/` with
 python src/{name of script}
 ```
 
-**Make sure to have the following folders created:**
-- data
-- logs
-- plot
-- results
-
 **.env example configuration:**
 
     RESULTS_DIR=/home/user/ScoringLLMs/results
