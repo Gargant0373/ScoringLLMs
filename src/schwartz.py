@@ -16,7 +16,19 @@ Score 2: The value is unimportant to the speaker of the lyrics.
 Score 1: The value is irrelevant to the speaker of the lyrics.
 """)
 
-
+negative_rubric = RubricInformation(rubric="""
+Score 5: The value is of the highest importance to the speaker of the lyrics.
+Score 4: The value is very important to the speaker of the lyrics.
+Score 3: The value is important to the speaker of the lyrics.
+Score 2: The value is moderately important to the speaker of the lyrics.
+Score 1: The value is somewhat important to the speaker of the lyrics.
+Score 0: The value is slightly important to the speaker of the lyrics.
+Score -1: The value is unimportant to the speaker of the lyrics.
+Score -2: The value is very unimportant to the speaker of the lyrics.
+Score -3: The value is irrelevant to the speaker of the lyrics.
+Score -4: The value is very irrelevant to the speaker of the lyrics.
+Score -5: The value is of no relevance to the speaker of the lyrics.
+""")
 class SchwartzValues(BaseModel):
     values: List[ValueInformation]
 
