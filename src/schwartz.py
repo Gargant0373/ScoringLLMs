@@ -17,18 +17,30 @@ Score 1: The value is irrelevant to the speaker of the lyrics.
 """)
 
 negative_rubric = RubricInformation(rubric="""
+Scores are in the [-5, 5] interval.
 Score 5: The value is of the highest importance to the speaker of the lyrics.
 Score 4: The value is very important to the speaker of the lyrics.
 Score 3: The value is important to the speaker of the lyrics.
 Score 2: The value is moderately important to the speaker of the lyrics.
 Score 1: The value is somewhat important to the speaker of the lyrics.
-Score 0: The value is slightly important to the speaker of the lyrics.
-Score -1: The value is unimportant to the speaker of the lyrics.
-Score -2: The value is very unimportant to the speaker of the lyrics.
-Score -3: The value is irrelevant to the speaker of the lyrics.
-Score -4: The value is very irrelevant to the speaker of the lyrics.
-Score -5: The value is of no relevance to the speaker of the lyrics.
+Score 0: The value is neutral to the speaker of the lyrics.
+Score -1: The value is somewhat opposed by the speaker of the lyrics.
+Score -2: The value is moderately opposed by the speaker of the lyrics.
+Score -3: The value is opposed by the speaker of the lyrics.
+Score -4: The value is very opposed by the speaker of the lyrics.
+Score -5: The value is completely opposed by the speaker of the lyrics.
+""") 
+
+large_rubric = RubricInformation(rubric="""
+Scores should be assigned within the [−100,100] range. Use the provided scores as anchor points,
+and use intermediate scores to represent intermediate levels of importance or opposition.
+Score 100: The value is of the highest importance to the speaker of the lyrics.
+Score 50: The value is moderately important to the speaker of the lyrics.
+Score 0: The value is neutral to the speaker of the lyrics.
+Score -50: The value is moderately opposed by the speaker of the lyrics.
+Score -100: The value is completely opposed by the speaker of the lyrics.
 """)
+
 class SchwartzValues(BaseModel):
     values: List[ValueInformation]
 
