@@ -78,8 +78,9 @@ header = [
 
 score_generator = TypedChainOfThought(GenerateScore)
 
+model = sys.argv[1]
 config = {
-    "model_name": 'llama3',
+    "model_name": model,
     "instance_description": 'ratings-0_5',
     "container_name": 'ollama',
     "results_header": {
