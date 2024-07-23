@@ -41,6 +41,19 @@ Score -50: The value is moderately opposed by the speaker of the lyrics.
 Score -100: The value is completely opposed by the speaker of the lyrics.
 """)
 
+
+# Generate a rubric for a given range
+def generateRubric(min, max):
+    size = max - min
+    rubric = f"""
+    Scores should be assigned within the [{min},{max}] range. Use the provided scores as anchor points,
+    and use intermediate scores to represent intermediate levels of importance or opposition.
+    Please use the whole range.
+    Score {max}: The value is of the highest importance to the speaker of the lyrics.
+    Score {min}: The value is completely opposed by the speaker of the lyrics.
+    """
+    return RubricInformation(rubric=rubric)
+
 class SchwartzValues(BaseModel):
     values: List[ValueInformation]
 
