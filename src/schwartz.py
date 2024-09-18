@@ -49,8 +49,9 @@ def generateRubric(min, max):
     Scores should be assigned within the [{min},{max}] range. Use the provided scores as anchor points,
     and use intermediate scores to represent intermediate levels of importance or opposition.
     Please use the whole range.
-    Score {max}: The value is of the highest importance to the speaker of the lyrics.
     Score {min}: The value is completely opposed by the speaker of the lyrics.
+    Score {int(size / 2)}: The value is neutral to the speaker of the lyrics.
+    Score {max}: The value is of the highest importance to the speaker of the lyrics.
     """
     return RubricInformation(rubric=rubric)
 

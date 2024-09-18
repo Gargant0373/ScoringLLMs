@@ -3,7 +3,7 @@ import sys
 import os
 import traceback
 from pydantic import BaseModel, Field
-from dspy import InputField, OutputField, TypedChainOfThought
+from dspy import InputField, OutputField, TypedChainOfThought, TypedPredictor
 from dotenv import load_dotenv
 
 from schwartz import ValueInformation, RubricInformation, schwartz_values, generateRubric
@@ -18,23 +18,22 @@ max = int(sys.argv[3])
 # The model will try to output a JSON object with the 
 # following constraints
 class OutputScore(BaseModel):
+    feedback: str = Field(
+        description="""
+            Write a detailed feedback that explains how the given value is (or is not) reflected in the lyrics. 
+            Include specific examples and
+            reasons for which the score was chosen.
+        """
+    )
     score: int = Field(
         ge=min,
         le=max,
-        description=f"An integer between {min} and {max}. Refer to the score rubric"
+        description="An integer. Refer to the score rubric"
     )
     confidence: float = Field(
         ge=0.,
         le=1.,
-        description="The confidence for the score, as a float from 0. to 1."
-    )
-    feedback: str = Field(
-        description="""
-            Write a detailed feedback that assesses the quality of the
-            response strictly based on the given score rubric, not
-            evaluating in general. Include specific examples and
-            reasons for which the score was chosen
-        """
+        description="The confidence for the score you gave. 0 means complete uncertainty about how the given value is reflected in the lyrics. 1 means complete certainty."
     )
 
 # Main DSPY singature
@@ -49,8 +48,6 @@ class GenerateScore(dspy.Signature):
     Then, on the scale of 0-1 tell how confident you are about the
     answer.
     Lastly, provide a feedback stating why you chose the score.
-    After "Output:" nothing should follow except the required JSON object.
-    Your response should contain nothing besides the JSON object.
     """
 
     value: ValueInformation = InputField()
@@ -79,7 +76,7 @@ header = [
     "stimulation", "security", "conformity", "tradition", "benevolence", "universalism"
 ]
 
-score_generator = TypedChainOfThought(GenerateScore)
+score_generator = TypedPredictor(GenerateScore)
 
 model = sys.argv[1]
 config = {

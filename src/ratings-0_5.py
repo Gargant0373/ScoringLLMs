@@ -47,7 +47,7 @@ class GenerateScore(dspy.Signature):
     answer.
     Lastly, provide a feedback stating why you chose the score.
     After "Output:" nothing should follow except the required JSON object.
-    Your response should contain nothing besides the JSON object.
+    Your response should contain nothing besides the unformatted JSON object.
     """
 
     value: ValueInformation = InputField()
