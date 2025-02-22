@@ -17,11 +17,13 @@ class ModelConfig:
         results_dir=None,
         results_header=None,
         logging_dir=None,
+        temperature=0.8
     ):
         self.name = model_name
         self.instance_description = instance_description
         self.container_id = container_id
         self.container_name = container_name
+        self.temperature = temperature
 
         load_dotenv()
         self.results_header = results_header

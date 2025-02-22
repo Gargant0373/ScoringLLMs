@@ -2,56 +2,56 @@ from pydantic import BaseModel, Field
 from typing import List
 
 class RubricInformation(BaseModel):
-    rubric: str = Field(description="A rubric to be used for assigning scores to lyrics for each value")
+    rubric: str = Field(description="A rubric to be used for assigning scores to the text sample for each value")
 
 class ValueInformation(BaseModel):
-    value: str = Field(description="The specific value to be rated in the lyrics")
+    value: str = Field(description="The specific value to be rated in the text sample")
     value_description: str = Field(description="The description of the value to be rated")
 
 rubric = RubricInformation(rubric="""
-Score 5: The value is of the highest importance to the speaker of the lyrics.
-Score 4: The value is important to the speaker of the lyrics.
-Score 3: The value is somewhat important to the speaker of the lyrics.
-Score 2: The value is unimportant to the speaker of the lyrics.
-Score 1: The value is irrelevant to the speaker of the lyrics.
+Score 5: The value is of the highest importance to the speaker of the text sample.
+Score 4: The value is important to the speaker of the text sample.
+Score 3: The value is somewhat important to the speaker of the text sample.
+Score 2: The value is unimportant to the speaker of the text sample.
+Score 1: The value is irrelevant to the speaker of the text sample.
 """)
 
 negative_rubric = RubricInformation(rubric="""
 Scores are in the [-5, 5] interval.
-Score 5: The value is of the highest importance to the speaker of the lyrics.
-Score 4: The value is very important to the speaker of the lyrics.
-Score 3: The value is important to the speaker of the lyrics.
-Score 2: The value is moderately important to the speaker of the lyrics.
-Score 1: The value is somewhat important to the speaker of the lyrics.
-Score 0: The value is neutral to the speaker of the lyrics.
-Score -1: The value is somewhat opposed by the speaker of the lyrics.
-Score -2: The value is moderately opposed by the speaker of the lyrics.
-Score -3: The value is opposed by the speaker of the lyrics.
-Score -4: The value is very opposed by the speaker of the lyrics.
-Score -5: The value is completely opposed by the speaker of the lyrics.
+Score 5: The value is of the highest importance to the speaker of the text sample.
+Score 4: The value is very important to the speaker of the text sample.
+Score 3: The value is important to the speaker of the text sample.
+Score 2: The value is moderately important to the speaker of the text sample.
+Score 1: The value is somewhat important to the speaker of the text sample.
+Score 0: The value is neutral to the speaker of the text sample.
+Score -1: The value is somewhat opposed by the speaker of the text sample.
+Score -2: The value is moderately opposed by the speaker of the text sample.
+Score -3: The value is opposed by the speaker of the text sample.
+Score -4: The value is very opposed by the speaker of the text sample.
+Score -5: The value is completely opposed by the speaker of the text sample.
 """) 
 
 large_rubric = RubricInformation(rubric="""
 Scores should be assigned within the [−100,100] range. Use the provided scores as anchor points,
 and use intermediate scores to represent intermediate levels of importance or opposition.
-Score 100: The value is of the highest importance to the speaker of the lyrics.
-Score 50: The value is moderately important to the speaker of the lyrics.
-Score 0: The value is neutral to the speaker of the lyrics.
-Score -50: The value is moderately opposed by the speaker of the lyrics.
-Score -100: The value is completely opposed by the speaker of the lyrics.
+Score 100: The value is of the highest importance to the speaker of the text sample.
+Score 50: The value is moderately important to the speaker of the text sample.
+Score 0: The value is neutral to the speaker of the text sample.
+Score -50: The value is moderately opposed by the speaker of the text sample.
+Score -100: The value is completely opposed by the speaker of the text sample.
 """)
 
 
 # Generate a rubric for a given range
-def generateRubric(min, max):
-    size = max - min
+def generateRubric(min_score, max_score):
+    size = max_score - min_score
     rubric = f"""
-    Scores should be assigned within the [{min},{max}] range. Use the provided scores as anchor points,
+    Scores should be assigned within the [{min_score},{max_score}] range. Use the provided scores as anchor points,
     and use intermediate scores to represent intermediate levels of importance or opposition.
     Please use the whole range.
-    Score {min}: The value is completely opposed by the speaker of the lyrics.
-    Score {int(size / 2)}: The value is neutral to the speaker of the lyrics.
-    Score {max}: The value is of the highest importance to the speaker of the lyrics.
+    Score {min_score}: The value is completely opposed by the speaker of the text sample.
+    Score {int(size / 2)}: The value is neutral to the speaker of the text sample.
+    Score {max_score}: The value is of the highest importance to the speaker of the text sample.
     """
     return RubricInformation(rubric=rubric)
 

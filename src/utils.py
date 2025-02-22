@@ -1,5 +1,12 @@
 import csv
+from dataclasses import dataclass
 import os
+import json
+
+@dataclass
+class SampleEntry:
+    id: str
+    sample: str
 
 # Append data to a CSV file
 def append_to_csv(file_path, data):
@@ -37,3 +44,8 @@ def load_lyrics(csv_path_mxm_id_list, csv_path_all_lyrics):
 
     return data
 
+def load_sample(json_path):
+    with open(json_path, 'r', encoding='utf-8') as jsonfile:
+        data = json.load(jsonfile)
+
+    return [SampleEntry(id=entry['id'], sample=entry['sample']) for entry in data]
