@@ -1,15 +1,17 @@
 #!/bin/sh
+# Grid search for different models, sample types, and batch sizes
 
-for i in $(seq 1 10)
-do
-    echo "Run $i"
-    python src/ratings.py -i "data/lyrics_v1_pilot.json" -t "lyrics" --min 0 --max 10 qwen2.5:7b 
-    python src/ratings.py -i "data/speeches_v1_pilot.json" -t "speeches" --min 0 --max 10 qwen2.5:7b 
-done
+batch_size=3
+# models=("llama3.1:8b" "qwen2.5:7b" "mistral" "gemma2:9b" "phi4" "mistral-small:24b")
+models=("qwen2.5:7b" "gemma2:9b" "phi4")
+sample_path="data/lyrics_v1_survey_1.json"
+sample_types="lyrics"
 
-for i in $(seq 1 10)
+for model in "${models[@]}"
 do
-    echo "Run $i"
-    python src/ratings.py -i "data/lyrics_v1_pilot.json" -t "lyrics" --min 0 --max 10 llama3.1:8b 
-    python src/ratings.py -i "data/speeches_v1_pilot.json" -t "speeches" --min 0 --max 10 llama3.1:8b 
+    for i in $(seq 1 $batch_size)
+    do
+        python src/ratings.py -i $sample_path -t $sample_types --min 0 --max 10 $model
+    done
 done
+        
