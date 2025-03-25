@@ -90,7 +90,10 @@ def main():
     samples = load_sample(args.input_file)
     header = [
         "id", "achievement", "hedonism", "power", "self-direction",
-        "stimulation", "security", "conformity", "tradition", "benevolence", "universalism"
+        "stimulation", "security", "conformity", "tradition", "benevolence", "universalism",
+        "achievement_confidence", "hedonism_confidence", "power_confidence", "self-direction_confidence",
+        "stimulation_confidence", "security_confidence", "conformity_confidence", "tradition_confidence",
+        "benevolence_confidence", "universalism_confidence"
     ]
 
     score_generator = Predict(GenerateScore)
@@ -102,7 +105,6 @@ def main():
         "container_name": 'ollama',
         "results_header": {
             "": header,
-            "weighted": header
         },
         "temperature": 0.8 + 0.1 * random.uniform(-1, 1)
     }
@@ -111,7 +113,6 @@ def main():
 
 
     mconfig = ModelConfig(**config)
-    mconfig.add_outfile("weighted")
     mconfig.logger.info(f"Config: {mconfig.__dict__}")
 
     for s in samples:
@@ -134,17 +135,16 @@ def main():
 
                 outs.append(result.output)
                 scores.append(result.output.score)
-                confidence_scores.append(result.output.score * result.output.confidence)
+                confidence_scores.append(result.output.confidence)
                 mconfig.logger.info(f"Finished assesing {val.value}: {result.output.score} (confidence: {result.output.confidence})")
                 mconfig.logger.debug(f"Feedback: {result.output.feedback}")
             except Exception:
                 mconfig.logger.error(traceback.format_exc())
             finally:
                 with open(os.devnull, "w") as sys.stdout:
-                    mconfig.logger.debug(f"Prompt: {lm.inspect_history(n=1)}")
+                    mconfig.logger.debug(f"Prompt: {lm.history[-1]['messages']}")
 
-        mconfig.write([se.id] + scores)
-        mconfig.write([se.id] + confidence_scores, addition="weighted")
+        mconfig.write([se.id] + scores + confidence_scores)
 
 
 if __name__ == "__main__":
